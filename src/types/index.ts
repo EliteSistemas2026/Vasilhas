@@ -218,7 +218,69 @@ export interface StoreSettings {
   };
   returnPolicy: string;
   privacyPolicy: string;
+  adminPassword?: string;
+  adminEmail?: string;
   supabaseUrl?: string;
   supabaseAnonKey?: string;
-  adminPassword?: string;
+}
+
+export type UserRole = 'super_admin' | 'manager' | 'operator' | 'financial';
+
+export interface UserPrivileges {
+  dashboard: boolean;
+  productsAndStock: boolean;
+  orders: boolean;
+  financial: boolean;
+  couponsAndBanners: boolean;
+  usersAndSettings: boolean;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  roleLabel: string;
+  privileges: UserPrivileges;
+  isActive: boolean;
+  avatar?: string;
+  createdAt: string;
+  lastLogin?: string;
+}
+
+export type AccountReceivableStatus = 'pending' | 'received' | 'overdue' | 'cancelled';
+
+export interface AccountReceivable {
+  id: string;
+  description: string;
+  customerName: string;
+  customerPhone?: string;
+  orderId?: string;
+  orderCode?: string;
+  amount: number;
+  dueDate: string;
+  receivedDate?: string;
+  paymentMethod: string;
+  status: AccountReceivableStatus;
+  category: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export type AccountPayableStatus = 'pending' | 'paid' | 'overdue' | 'cancelled';
+
+export interface AccountPayable {
+  id: string;
+  description: string;
+  supplier: string;
+  amount: number;
+  dueDate: string;
+  paidDate?: string;
+  category: string;
+  paymentMethod: string;
+  status: AccountPayableStatus;
+  barcodeOrPix?: string;
+  notes?: string;
+  createdAt: string;
 }

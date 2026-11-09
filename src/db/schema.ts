@@ -190,6 +190,61 @@ export const inventoryMovements = pgTable('inventory_movements', {
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
 
+// Admin Users with roles and privileges
+export const adminUsers = pgTable('admin_users', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  role: text('role').default('operator').notNull(),
+  roleLabel: text('role_label').default('Operador').notNull(),
+  privileges: jsonb('privileges').default({
+    dashboard: true,
+    productsAndStock: true,
+    orders: true,
+    financial: false,
+    couponsAndBanners: false,
+    usersAndSettings: false
+  }).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  lastLogin: timestamp('last_login'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Accounts Receivable (Contas a Receber)
+export const accountsReceivable = pgTable('accounts_receivable', {
+  id: serial('id').primaryKey(),
+  description: text('description').notNull(),
+  customerName: text('customer_name').notNull(),
+  customerPhone: text('customer_phone'),
+  orderId: text('order_id'),
+  orderCode: text('order_code'),
+  amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
+  dueDate: text('due_date').notNull(),
+  receivedDate: timestamp('received_date'),
+  paymentMethod: text('payment_method').notNull(),
+  status: text('status').default('pending').notNull(),
+  category: text('category').default('Venda da Loja').notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Accounts Payable (Contas a Pagar)
+export const accountsPayable = pgTable('accounts_payable', {
+  id: serial('id').primaryKey(),
+  description: text('description').notNull(),
+  supplier: text('supplier').notNull(),
+  amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
+  dueDate: text('due_date').notNull(),
+  paidDate: timestamp('paid_date'),
+  category: text('category').notNull(),
+  paymentMethod: text('payment_method').default('Boleto').notNull(),
+  status: text('status').default('pending').notNull(),
+  barcodeOrPix: text('barcode_or_pix'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
 // Relations
 export const productsRelations = relations(products, ({ one, many }) => ({
   category: one(categories, {

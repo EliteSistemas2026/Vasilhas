@@ -16,7 +16,15 @@ import {
   Lock,
   Menu,
   X,
-  ExternalLink
+  CreditCard,
+  UserCheck,
+  ShieldCheck,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 import {
   StoreSettings,
@@ -27,8 +35,12 @@ import {
   Coupon,
   Banner,
   InventoryMovement,
-  OrderStatus
+  OrderStatus,
+  AdminUser,
+  AccountReceivable,
+  AccountPayable
 } from '../../types';
+import { db } from '../../services/db';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminProducts } from './AdminProducts';
 import { AdminCategories } from './AdminCategories';
@@ -40,6 +52,9 @@ import { AdminBanners } from './AdminBanners';
 import { AdminReports } from './AdminReports';
 import { AdminSettings } from './AdminSettings';
 import { AdminSupabase } from './AdminSupabase';
+import { AdminUsers } from './AdminUsers';
+import { AdminAccountsReceivable } from './AdminAccountsReceivable';
+import { AdminAccountsPayable } from './AdminAccountsPayable';
 
 interface Props {
   settings: StoreSettings;
@@ -50,6 +65,9 @@ interface Props {
   coupons: Coupon[];
   banners: Banner[];
   movements: InventoryMovement[];
+  users: AdminUser[];
+  receivables: AccountReceivable[];
+  payables: AccountPayable[];
   onBackToStore: () => void;
   onSaveProduct: (product: Product) => void;
   onDeleteProduct: (id: string) => void;
@@ -68,6 +86,14 @@ interface Props {
   onSaveBanner: (banner: Banner) => void;
   onDeleteBanner: (id: string) => void;
   onUpdateSettings: (partial: Partial<StoreSettings>) => void;
+  onSaveUser: (user: Partial<AdminUser>) => Promise<AdminUser>;
+  onDeleteUser: (id: string) => Promise<boolean>;
+  onSaveReceivable: (item: Partial<AccountReceivable>) => Promise<AccountReceivable>;
+  onMarkAsReceived: (id: string) => Promise<boolean>;
+  onDeleteReceivable: (id: string) => Promise<boolean>;
+  onSavePayable: (item: Partial<AccountPayable>) => Promise<AccountPayable>;
+  onMarkAsPaid: (id: string) => Promise<boolean>;
+  onDeletePayable: (id: string) => Promise<boolean>;
 }
 
 export const AdminLayout: React.FC<Props> = ({
@@ -79,6 +105,9 @@ export const AdminLayout: React.FC<Props> = ({
   coupons,
   banners,
   movements,
+  users,
+  receivables,
+  payables,
   onBackToStore,
   onSaveProduct,
   onDeleteProduct,
@@ -90,12 +119,24 @@ export const AdminLayout: React.FC<Props> = ({
   onDeleteCoupon,
   onSaveBanner,
   onDeleteBanner,
-  onUpdateSettings
+  onUpdateSettings,
+  onSaveUser,
+  onDeleteUser,
+  onSaveReceivable,
+  onMarkAsReceived,
+  onDeleteReceivable,
+  onSavePayable,
+  onMarkAsPaid,
+  onDeletePayable
 }) => {
-  // Authentication gate
+  // Authentication gate state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [authError, setAuthError] = useState(false);
+  const [emailInput, setEmailInput] = useState('edilson9155@gmail.com');
+  const [passwordInput, setPasswordInput] = useState('91550748');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
 
   // Active navigation tab
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -104,15 +145,31 @@ export const AdminLayout: React.FC<Props> = ({
   // Selected order for direct opening in Orders tab
   const [selectedOrderForDetail, setSelectedOrderForDetail] = useState<Order | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const correctPassword = settings.adminPassword || 'admin';
-    if (passwordInput === correctPassword || passwordInput === 'admin123' || passwordInput === 'admin') {
-      setIsAuthenticated(true);
-      setAuthError(false);
-    } else {
-      setAuthError(true);
+    setAuthError(null);
+    setIsLoggingIn(true);
+
+    try {
+      const result = await db.authenticateUser(emailInput, passwordInput);
+      setIsLoggingIn(false);
+
+      if (result.success && result.user) {
+        setIsAuthenticated(true);
+        setCurrentUser(result.user);
+      } else {
+        setAuthError(result.error || 'Credenciais inválidas. Verifique e-mail e senha.');
+      }
+    } catch (err) {
+      setIsLoggingIn(false);
+      setAuthError('Falha ao autenticar. Tente novamente.');
     }
+  };
+
+  const handleQuickFillAdmin = () => {
+    setEmailInput('edilson9155@gmail.com');
+    setPasswordInput('91550748');
+    setAuthError(null);
   };
 
   const pendingOrdersCount = orders.filter(
@@ -121,73 +178,187 @@ export const AdminLayout: React.FC<Props> = ({
 
   const lowStockCount = products.filter((p) => p.stock <= p.minStock && p.isActive).length;
 
-  // Login Wall
+  const pendingReceivablesCount = receivables.filter((r) => r.status === 'pending').length;
+  const pendingPayablesCount = payables.filter((p) => p.status === 'pending').length;
+
+  // Modern High-End Login Wall (Tupperware Style)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 border border-stone-200 text-center animate-in fade-in duration-300">
-          <div className="w-14 h-14 bg-emerald-800 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md shadow-emerald-900/10">
-            <Lock className="w-7 h-7" />
+      <div className="min-h-screen bg-stone-900 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Subtle decorative background gradient circles */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-rose-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-teal-600/20 blur-3xl pointer-events-none" />
+
+        <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-stone-200 text-center animate-in fade-in zoom-in-95 duration-300">
+          {/* Logo & Brand Header */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-700 via-rose-600 to-rose-500 text-white p-2.5 shadow-xl shadow-rose-900/20 flex items-center justify-center mb-3 border border-white/20">
+              <img src="/icon.svg" alt="Tupperware Logo" className="w-full h-full object-contain filter drop-shadow-sm" />
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-800 text-[11px] font-extrabold uppercase tracking-wider mb-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
+              <span>Acesso Administrativo Seguro</span>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+              {settings.storeName || 'TupperVasilhas & Cia'}
+            </h2>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Gestão de Vendas, Usuários e Módulo Financeiro
+            </p>
           </div>
 
-          <h2 className="text-xl font-bold text-stone-900">Painel Administrativo</h2>
-          <p className="text-xs text-stone-500 mt-1">
-            Digite a senha de administrador para gerenciar pedidos, produtos e estoque.
-          </p>
+          {/* Quick Credential Pre-fill Badge */}
+          <div
+            onClick={handleQuickFillAdmin}
+            className="mb-5 p-2.5 bg-rose-50/80 hover:bg-rose-100 border border-rose-200 rounded-2xl text-left cursor-pointer transition flex items-center justify-between group"
+            title="Clique para preencher os dados de administrador"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-rose-700 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                E
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-rose-900 block">
+                  Admin Principal (Edilson)
+                </span>
+                <span className="text-[11px] font-mono text-rose-700 font-semibold block">
+                  edilson9155@gmail.com
+                </span>
+              </div>
+            </div>
+            <span className="text-[10px] text-rose-800 font-bold bg-white px-2 py-0.5 rounded-lg border border-rose-200 shadow-2xs group-hover:bg-rose-700 group-hover:text-white transition">
+              Preencher
+            </span>
+          </div>
 
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+          {authError && (
+            <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-semibold flex items-center gap-2 text-left animate-in shake">
+              <X className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                E-mail de Acesso
+              </label>
               <input
-                type="password"
+                type="email"
                 required
                 autoFocus
-                value={passwordInput}
+                value={emailInput}
                 onChange={(e) => {
-                  setPasswordInput(e.target.value);
-                  setAuthError(false);
+                  setEmailInput(e.target.value);
+                  setAuthError(null);
                 }}
-                placeholder="Senha de acesso (Padrão: admin)"
-                className="w-full bg-stone-50 px-4 py-3 rounded-2xl border border-stone-300 text-sm focus:outline-none focus:border-emerald-700 text-center font-bold"
+                placeholder="seuemail@exemplo.com"
+                className="w-full bg-stone-50 px-4 py-3 rounded-2xl border border-stone-300 text-xs sm:text-sm focus:outline-none focus:border-rose-700 font-medium"
               />
-              {authError && (
-                <p className="text-xs text-rose-600 mt-1 font-semibold">
-                  Senha incorreta. Tente "admin".
-                </p>
-              )}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-stone-700">
+                  Senha
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-stone-500 hover:text-stone-800 flex items-center gap-1"
+                >
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showPassword ? 'Ocultar' : 'Mostrar'}</span>
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    setAuthError(null);
+                  }}
+                  placeholder="Sua senha de acesso"
+                  className="w-full bg-stone-50 px-4 py-3 rounded-2xl border border-stone-300 text-xs sm:text-sm focus:outline-none focus:border-rose-700 font-bold"
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-md transition"
+              disabled={isLoggingIn}
+              className="w-full py-3.5 rounded-2xl bg-rose-700 hover:bg-rose-800 active:scale-95 text-white font-bold text-sm shadow-xl shadow-rose-950/20 transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              Acessar Painel
+              <Lock className="w-4 h-4" />
+              <span>{isLoggingIn ? 'Verificando no Banco...' : 'Entrar no Painel'}</span>
             </button>
           </form>
 
-          <button
-            onClick={onBackToStore}
-            className="mt-4 text-xs font-semibold text-stone-500 hover:text-stone-800 flex items-center justify-center gap-1 mx-auto"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Voltar para a Loja do Cliente</span>
-          </button>
+          {/* Database & Return Footer */}
+          <div className="mt-6 pt-4 border-t border-stone-100 flex flex-col gap-2">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-400 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>Banco de Dados: PostgreSQL Cloud SQL Conectado</span>
+            </div>
+
+            <button
+              onClick={onBackToStore}
+              className="text-xs font-semibold text-stone-500 hover:text-stone-800 flex items-center justify-center gap-1 mx-auto mt-1"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Voltar para a Loja do Cliente</span>
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Admin Navigation Menu items
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'products', label: 'Produtos', icon: Package, badge: lowStockCount > 0 ? `${lowStockCount} baixo` : undefined, badgeColor: 'bg-amber-100 text-amber-800' },
+    {
+      id: 'products',
+      label: 'Produtos',
+      icon: Package,
+      badge: lowStockCount > 0 ? `${lowStockCount} baixo` : undefined,
+      badgeColor: 'bg-amber-100 text-amber-800'
+    },
     { id: 'categories', label: 'Categorias', icon: Layers },
-    { id: 'orders', label: 'Pedidos', icon: ShoppingBag, badge: pendingOrdersCount > 0 ? pendingOrdersCount.toString() : undefined, badgeColor: 'bg-emerald-700 text-white' },
+    {
+      id: 'orders',
+      label: 'Pedidos',
+      icon: ShoppingBag,
+      badge: pendingOrdersCount > 0 ? pendingOrdersCount.toString() : undefined,
+      badgeColor: 'bg-emerald-700 text-white'
+    },
     { id: 'stock', label: 'Estoque', icon: TrendingUp },
+    {
+      id: 'receivables',
+      label: 'Contas a Receber',
+      icon: ArrowDownLeft,
+      badge: pendingReceivablesCount > 0 ? pendingReceivablesCount.toString() : undefined,
+      badgeColor: 'bg-emerald-100 text-emerald-800'
+    },
+    {
+      id: 'payables',
+      label: 'Contas a Pagar',
+      icon: ArrowUpRight,
+      badge: pendingPayablesCount > 0 ? pendingPayablesCount.toString() : undefined,
+      badgeColor: 'bg-rose-100 text-rose-800'
+    },
     { id: 'customers', label: 'Clientes', icon: Users },
+    { id: 'users', label: 'Usuários & Privilégios', icon: UserCheck },
     { id: 'coupons', label: 'Promoções & Cupons', icon: Tag },
     { id: 'banners', label: 'Banners da Home', icon: ImageIcon },
     { id: 'reports', label: 'Relatórios & CSV', icon: FileText },
     { id: 'settings', label: 'Configurações', icon: Settings },
-    { id: 'supabase', label: 'Supabase & SQL', icon: Database }
+    { id: 'supabase', label: 'Cloud SQL & Dados', icon: Database }
   ];
 
   return (
@@ -202,15 +373,37 @@ export const AdminLayout: React.FC<Props> = ({
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="font-extrabold text-sm sm:text-base tracking-tight">
-              {settings.storeName} <span className="text-emerald-400 font-light">Admin</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-rose-600 flex items-center justify-center p-1">
+              <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
+            </div>
+            <h1 className="font-extrabold text-sm sm:text-base tracking-tight flex items-center gap-1.5">
+              <span>{settings.storeName || 'TupperVasilhas & Cia'}</span>
+              <span className="text-rose-400 font-light text-xs bg-rose-950 px-2 py-0.5 rounded-full border border-rose-800">
+                Admin
+              </span>
             </h1>
           </div>
         </div>
 
+        {/* User Profile & Actions */}
         <div className="flex items-center gap-3">
+          {currentUser && (
+            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-stone-800">
+              <div className="w-7 h-7 rounded-full bg-rose-700 text-white flex items-center justify-center text-xs font-bold">
+                {currentUser.name.charAt(0)}
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-bold text-stone-100 block leading-tight">
+                  {currentUser.name.split(' ')[0]}
+                </span>
+                <span className="text-[10px] text-stone-400 block leading-tight">
+                  {currentUser.roleLabel}
+                </span>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={onBackToStore}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold transition"
@@ -220,7 +413,10 @@ export const AdminLayout: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => setIsAuthenticated(false)}
+            onClick={() => {
+              setIsAuthenticated(false);
+              setCurrentUser(null);
+            }}
             className="p-1.5 text-stone-400 hover:text-rose-400 transition"
             title="Sair do painel"
           >
@@ -231,7 +427,7 @@ export const AdminLayout: React.FC<Props> = ({
 
       <div className="flex-1 flex max-w-7xl w-full mx-auto px-4 py-6 gap-6">
         {/* Desktop Sidebar (lg) */}
-        <aside className="w-60 bg-white rounded-3xl p-4 border border-stone-200 shadow-xs hidden lg:flex flex-col justify-between shrink-0 h-[calc(100vh-8rem)] sticky top-20">
+        <aside className="w-64 bg-white rounded-3xl p-4 border border-stone-200 shadow-xs hidden lg:flex flex-col justify-between shrink-0 h-[calc(100vh-8rem)] sticky top-20">
           <div className="space-y-1 overflow-y-auto pr-1">
             <span className="text-[10px] font-bold uppercase text-stone-400 px-3 tracking-wider block mb-2">
               Menu Principal
@@ -245,7 +441,7 @@ export const AdminLayout: React.FC<Props> = ({
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-emerald-800 text-white shadow-xs'
+                      ? 'bg-rose-700 text-white shadow-xs font-bold'
                       : 'text-stone-700 hover:bg-stone-100'
                   }`}
                 >
@@ -256,7 +452,7 @@ export const AdminLayout: React.FC<Props> = ({
                   {item.badge && (
                     <span
                       className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
-                        isActive ? 'bg-white text-emerald-900' : item.badgeColor
+                        isActive ? 'bg-white text-rose-900' : item.badgeColor
                       }`}
                     >
                       {item.badge}
@@ -268,7 +464,7 @@ export const AdminLayout: React.FC<Props> = ({
           </div>
 
           <div className="pt-3 border-t border-stone-100 text-[11px] text-stone-400 text-center">
-            Vasilha & Cia v1.0.0
+            {settings.storeName} • Cloud SQL PostgreSQL
           </div>
         </aside>
 
@@ -276,7 +472,7 @@ export const AdminLayout: React.FC<Props> = ({
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-40 bg-black/50 flex">
             <div className="w-64 bg-white h-full p-4 flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
-              <div className="space-y-1">
+              <div className="space-y-1 overflow-y-auto">
                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-stone-100">
                   <span className="font-bold text-stone-900 text-sm">Navegação Admin</span>
                   <button onClick={() => setMobileMenuOpen(false)}>
@@ -295,7 +491,7 @@ export const AdminLayout: React.FC<Props> = ({
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
                         isActive
-                          ? 'bg-emerald-800 text-white shadow-xs'
+                          ? 'bg-rose-700 text-white shadow-xs font-bold'
                           : 'text-stone-700 hover:bg-stone-100'
                       }`}
                     >
@@ -315,7 +511,7 @@ export const AdminLayout: React.FC<Props> = ({
 
               <button
                 onClick={onBackToStore}
-                className="w-full py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl text-center"
+                className="w-full py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl text-center mt-4"
               >
                 Voltar à Loja
               </button>
@@ -369,6 +565,32 @@ export const AdminLayout: React.FC<Props> = ({
               products={products}
               movements={movements}
               onAdjustStock={onAdjustStock}
+            />
+          )}
+
+          {activeTab === 'receivables' && (
+            <AdminAccountsReceivable
+              receivables={receivables}
+              onSaveReceivable={onSaveReceivable}
+              onMarkAsReceived={onMarkAsReceived}
+              onDeleteReceivable={onDeleteReceivable}
+            />
+          )}
+
+          {activeTab === 'payables' && (
+            <AdminAccountsPayable
+              payables={payables}
+              onSavePayable={onSavePayable}
+              onMarkAsPaid={onMarkAsPaid}
+              onDeletePayable={onDeletePayable}
+            />
+          )}
+
+          {activeTab === 'users' && (
+            <AdminUsers
+              users={users}
+              onSaveUser={onSaveUser}
+              onDeleteUser={onDeleteUser}
             />
           )}
 

@@ -65,15 +65,18 @@ export const Navbar: React.FC<Props> = ({
             }}
             className="flex items-center gap-2.5 cursor-pointer group shrink-0"
           >
-            <div className="w-9 h-9 rounded-xl bg-emerald-800 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition">
-              <Layers className="w-5 h-5 text-emerald-200" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-600 via-rose-700 to-pink-800 p-1 flex items-center justify-center text-white shadow-sm shadow-rose-200 group-hover:scale-105 transition border border-rose-400/30">
+              <img src="/icon.svg" alt="TupperVasilhas" className="w-7 h-7 drop-shadow-sm object-contain" />
             </div>
             <div>
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 group-hover:text-emerald-800 transition">
+              <span className="text-lg sm:text-xl font-black tracking-tight text-stone-900 group-hover:text-rose-700 transition flex items-center gap-1">
                 {settings.storeName.split(' ')[0]}
-                <span className="text-emerald-700 font-normal ml-1">
+                <span className="text-rose-600 font-semibold ml-0.5">
                   {settings.storeName.split(' ').slice(1).join(' ') || '& Cia'}
                 </span>
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-rose-500 block -mt-1">
+                Linha Tupperware & Vasilhas
               </span>
             </div>
           </div>

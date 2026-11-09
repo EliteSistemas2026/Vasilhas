@@ -86,8 +86,8 @@ export const PWAInstallButton: React.FC<Props> = ({ variant = 'button' }) => {
     return (
       <button
         onClick={install}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-700 text-white hover:bg-emerald-800 transition shadow-sm"
-        title="Instalar aplicativo"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-rose-600 to-pink-600 text-white hover:from-rose-700 hover:to-pink-700 transition shadow-sm shadow-rose-200"
+        title="Instalar aplicativo Tupperware Vasilhas"
       >
         <Download className="w-3.5 h-3.5" />
         <span>Instalar App</span>
@@ -100,15 +100,15 @@ export const PWAInstallButton: React.FC<Props> = ({ variant = 'button' }) => {
       <>
         <button
           onClick={() => setShowIOSGuide(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-stone-100 text-stone-700 hover:bg-stone-200 transition border border-stone-200"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-rose-50 text-rose-700 hover:bg-rose-100 transition border border-rose-200"
           title="Instalar no iPhone"
         >
-          <Smartphone className="w-3.5 h-3.5 text-emerald-700" />
+          <Smartphone className="w-3.5 h-3.5 text-rose-600" />
           <span>App no iPhone</span>
         </button>
 
         {showIOSGuide && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
             <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-stone-800 relative">
               <button
                 onClick={() => setShowIOSGuide(false)}
@@ -116,16 +116,19 @@ export const PWAInstallButton: React.FC<Props> = ({ variant = 'button' }) => {
               >
                 <X className="w-5 h-5" />
               </button>
-              <h3 className="text-lg font-bold text-stone-900">Instalar no seu iPhone</h3>
+              <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-3 border border-rose-100">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-stone-900">Instalar Vasilhas no iPhone</h3>
               <p className="mt-2 text-sm text-stone-600">
                 1. Toque no ícone de <strong>Compartilhar</strong> (quadrado com seta para cima) no Safari.<br />
                 2. Selecione <strong>Adicionar à Tela de Início</strong>.
               </p>
               <button
                 onClick={() => setShowIOSGuide(false)}
-                className="mt-4 w-full rounded-xl bg-emerald-700 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+                className="mt-4 w-full rounded-xl bg-rose-600 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 transition"
               >
-                Fechar
+                Entendi
               </button>
             </div>
           </div>

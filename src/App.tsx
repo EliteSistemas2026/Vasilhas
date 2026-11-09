@@ -20,7 +20,10 @@ import {
   Order,
   StoreSettings,
   ProductVariation,
-  OrderStatus
+  OrderStatus,
+  AdminUser,
+  AccountReceivable,
+  AccountPayable
 } from './types';
 import { Navbar } from './components/Navbar';
 import { HeroBanner } from './components/HeroBanner';
@@ -35,7 +38,7 @@ import { AdminLayout } from './components/Admin/AdminLayout';
 import { formatCurrency } from './services/cep';
 
 export default function App() {
-  // Service Worker Registration for PWA
+  // Service Worker Registration for PWA & Cloud SQL Initial Sync
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -44,6 +47,10 @@ export default function App() {
         });
       });
     }
+    // Pull fresh data from Cloud SQL database
+    db.syncWithDatabase().catch((err) => {
+      console.warn('Initial Cloud SQL sync notice:', err);
+    });
   }, []);
 
   // Main Reactive Store State
@@ -56,6 +63,9 @@ export default function App() {
   const [customers, setCustomers] = useState(db.getCustomers());
   const [movements, setMovements] = useState(db.getMovements());
   const [cart, setCart] = useState<CartItem[]>(db.getCart());
+  const [users, setUsers] = useState<AdminUser[]>(db.getUsers());
+  const [receivables, setReceivables] = useState<AccountReceivable[]>(db.getReceivables());
+  const [payables, setPayables] = useState<AccountPayable[]>(db.getPayables());
 
   // Subscribe to reactive database changes
   useEffect(() => {
@@ -69,6 +79,9 @@ export default function App() {
       setCustomers(db.getCustomers());
       setMovements(db.getMovements());
       setCart(db.getCart());
+      setUsers(db.getUsers());
+      setReceivables(db.getReceivables());
+      setPayables(db.getPayables());
     });
     return unsubscribe;
   }, []);
@@ -192,6 +205,9 @@ export default function App() {
         coupons={coupons}
         banners={banners}
         movements={movements}
+        users={users}
+        receivables={receivables}
+        payables={payables}
         onBackToStore={() => setCurrentView('store')}
         onSaveProduct={(p) => db.saveProduct(p)}
         onDeleteProduct={(id) => db.deleteProduct(id)}
@@ -206,6 +222,14 @@ export default function App() {
         onSaveBanner={(b) => db.saveBanner(b)}
         onDeleteBanner={(id) => db.deleteBanner(id)}
         onUpdateSettings={(partial) => db.updateSettings(partial)}
+        onSaveUser={(u) => db.saveUser(u)}
+        onDeleteUser={(id) => db.deleteUser(id)}
+        onSaveReceivable={(r) => db.saveReceivable(r)}
+        onMarkAsReceived={(id) => db.markReceivableAsReceived(id)}
+        onDeleteReceivable={(id) => db.deleteReceivable(id)}
+        onSavePayable={(p) => db.savePayable(p)}
+        onMarkAsPaid={(id) => db.markPayableAsPaid(id)}
+        onDeletePayable={(id) => db.deletePayable(id)}
       />
     );
   }

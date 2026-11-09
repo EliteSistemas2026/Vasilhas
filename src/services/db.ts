@@ -9,7 +9,10 @@ import {
   StoreSettings,
   CartItem,
   DeliveryMethod,
-  OrderStatus
+  OrderStatus,
+  AdminUser,
+  AccountReceivable,
+  AccountPayable
 } from '../types';
 
 const STORAGE_KEYS = {
@@ -21,31 +24,34 @@ const STORAGE_KEYS = {
   ORDERS: 'vasilha_orders_v1',
   MOVEMENTS: 'vasilha_movements_v1',
   CUSTOMERS: 'vasilha_customers_v1',
-  CART: 'vasilha_cart_v1'
+  CART: 'vasilha_cart_v1',
+  USERS: 'vasilha_users_v1',
+  RECEIVABLES: 'vasilha_receivables_v1',
+  PAYABLES: 'vasilha_payables_v1'
 };
 
-// Initial Seed Data with real products, accurate dimensions, and curated imagery
+// Initial Seed Data with Tupperware style, hermetic quality, and curated imagery
 const INITIAL_SETTINGS: StoreSettings = {
-  storeName: 'Vasilha & Cia',
-  slogan: 'Potes herméticos, vasilhas e organizadores inteligentes para seu lar',
+  storeName: 'TupperVasilhas & Cia',
+  slogan: 'Linha hermética, vasilhas e potes com estilo e conservação Tupperware',
   logo: '/icon.svg',
   whatsapp: '5511998765432',
   phone: '(11) 3254-8900',
-  email: 'atendimento@vasilhaecia.com.br',
+  email: 'edilson9155@gmail.com',
   address: 'Av. das Utilidades, 1500 - Sala 4',
   neighborhood: 'Vila Olímpia',
   city: 'São Paulo',
   state: 'SP',
   openingHours: 'Segunda a Sexta: 08:30 às 18:30 | Sábado: 09:00 às 14:00',
-  instagram: '@vasilhaecia.utilidades',
-  facebook: 'facebook.com/vasilhaecia',
+  instagram: '@tuppervasilhas.oficial',
+  facebook: 'facebook.com/tuppervasilhas',
   minOrderValue: 30.00,
   freeShippingMin: 199.00,
   localDeliveryFee: 14.90,
   pixDiscountPercent: 5.00,
-  pixKey: 'pix@vasilhaecia.com.br',
+  pixKey: 'edilson9155@gmail.com',
   pixKeyType: 'email',
-  pixReceiverName: 'Vasilha & Cia Utilidades Domésticas Ltda',
+  pixReceiverName: 'TupperVasilhas & Cia - Edilson',
   paymentMethods: {
     pix: true,
     creditCard: true,
@@ -59,7 +65,8 @@ const INITIAL_SETTINGS: StoreSettings = {
   },
   returnPolicy: 'Garantimos 7 dias para troca ou devolução sem custo caso você não fique 100% satisfeito com seu pote ou vasilha.',
   privacyPolicy: 'Seus dados são protegidos por criptografia e utilizados estritamente para faturamento e entrega de seus pedidos.',
-  adminPassword: 'admin'
+  adminPassword: 'admin',
+  adminEmail: 'edilson9155@gmail.com'
 };
 
 const INITIAL_CATEGORIES: Category[] = [
@@ -752,7 +759,181 @@ const INITIAL_MOVEMENTS: InventoryMovement[] = [
   }
 ];
 
-// In-Memory & LocalStorage persistent wrapper with subscription
+const INITIAL_USERS: AdminUser[] = [
+  {
+    id: '1',
+    name: 'Edilson (Super Admin)',
+    email: 'edilson9155@gmail.com',
+    password: '91550748',
+    role: 'super_admin',
+    roleLabel: 'Administrador Geral',
+    privileges: {
+      dashboard: true,
+      productsAndStock: true,
+      orders: true,
+      financial: true,
+      couponsAndBanners: true,
+      usersAndSettings: true
+    },
+    isActive: true,
+    createdAt: '2026-11-01T08:00:00.000Z',
+    lastLogin: new Date().toISOString()
+  },
+  {
+    id: '2',
+    name: 'Mariana Souza',
+    email: 'mariana.loja@vasilhas.com.br',
+    password: 'loja2026',
+    role: 'manager',
+    roleLabel: 'Gerente da Loja',
+    privileges: {
+      dashboard: true,
+      productsAndStock: true,
+      orders: true,
+      financial: false,
+      couponsAndBanners: true,
+      usersAndSettings: false
+    },
+    isActive: true,
+    createdAt: '2026-11-03T10:00:00.000Z',
+    lastLogin: '2026-11-08T14:30:00.000Z'
+  },
+  {
+    id: '3',
+    name: 'Carlos Alberto Financeiro',
+    email: 'financeiro@vasilhas.com.br',
+    password: 'fin2026',
+    role: 'financial',
+    roleLabel: 'Analista Financeiro',
+    privileges: {
+      dashboard: true,
+      productsAndStock: false,
+      orders: true,
+      financial: true,
+      couponsAndBanners: false,
+      usersAndSettings: false
+    },
+    isActive: true,
+    createdAt: '2026-11-05T09:00:00.000Z',
+    lastLogin: '2026-11-09T11:00:00.000Z'
+  }
+];
+
+const INITIAL_RECEIVABLES: AccountReceivable[] = [
+  {
+    id: '1',
+    description: 'Pedido VP-84210 - Kit 4 Potes Bambu + Organizador',
+    customerName: 'Mariana Duarte Silva',
+    customerPhone: '(11) 98765-4321',
+    orderId: '101',
+    orderCode: 'VP-84210',
+    amount: 212.63,
+    dueDate: '2026-11-06',
+    receivedDate: '2026-11-06T10:16:30.000Z',
+    paymentMethod: 'Pix Instantâneo',
+    status: 'received',
+    category: 'Venda da Loja',
+    createdAt: '2026-11-06T10:15:00.000Z'
+  },
+  {
+    id: '2',
+    description: 'Pedido VP-91823 - Vasilhas Marmita Bento Herméticas',
+    customerName: 'Carlos Eduardo Mendes',
+    customerPhone: '(11) 97123-8899',
+    orderId: '102',
+    orderCode: 'VP-91823',
+    amount: 77.80,
+    dueDate: '2026-11-07',
+    receivedDate: '2026-11-07T14:12:00.000Z',
+    paymentMethod: 'Pix Instantâneo',
+    status: 'received',
+    category: 'Venda da Loja',
+    createdAt: '2026-11-07T14:10:00.000Z'
+  },
+  {
+    id: '3',
+    description: 'Pedido VP-99451 - Kit 12 Potes Porta-Temperos',
+    customerName: 'Juliana Alencar Peixoto',
+    customerPhone: '(11) 99122-3344',
+    orderId: '103',
+    orderCode: 'VP-99451',
+    amount: 89.80,
+    dueDate: '2026-11-10',
+    paymentMethod: 'Dinheiro na Entrega',
+    status: 'pending',
+    category: 'Venda da Loja',
+    notes: 'Aguardando entrega',
+    createdAt: '2026-11-08T09:20:00.000Z'
+  },
+  {
+    id: '4',
+    description: 'Encomenda Corporativa - 25 Kits Linha Hermética Marmita',
+    customerName: 'Studio Gourmet & Co',
+    customerPhone: '(11) 98112-9900',
+    amount: 1450.00,
+    dueDate: '2026-11-15',
+    paymentMethod: 'Boleto Bancário 15D',
+    status: 'pending',
+    category: 'Venda Corporativa / B2B',
+    notes: 'Aguardando liquidação bancária',
+    createdAt: '2026-11-05T14:00:00.000Z'
+  }
+];
+
+const INITIAL_PAYABLES: AccountPayable[] = [
+  {
+    id: '1',
+    description: 'Fornecedor Polímeros Herméticos & Silicone Grau Alimentício',
+    supplier: 'TupperTech Indústria Plástica Ltda',
+    amount: 2450.00,
+    dueDate: '2026-11-12',
+    category: 'Fornecedores de Vasilhas',
+    paymentMethod: 'Boleto',
+    status: 'pending',
+    barcodeOrPix: '34191.79001 01043.510047 91020.150008 4 98210000245000',
+    notes: 'Lote 150 potes herméticos Linha Modular',
+    createdAt: '2026-11-01T10:00:00.000Z'
+  },
+  {
+    id: '2',
+    description: 'Caixas de Papelão e Embalagens Protetoras Personalizadas',
+    supplier: 'Embalagens & Cia Tubos e Caixas',
+    amount: 380.00,
+    dueDate: '2026-11-08',
+    paidDate: '2026-11-07T16:30:00.000Z',
+    category: 'Embalagens & Expedição',
+    paymentMethod: 'Pix',
+    status: 'paid',
+    notes: '500 caixas kraft personalizadas com logo',
+    createdAt: '2026-11-02T11:00:00.000Z'
+  },
+  {
+    id: '3',
+    description: 'Aluguel do Showroom / Espaço de Atendimento',
+    supplier: 'Imobiliária Vila Olímpia Empreendimentos',
+    amount: 1600.00,
+    dueDate: '2026-11-18',
+    category: 'Instalações & Aluguel',
+    paymentMethod: 'Boleto',
+    status: 'pending',
+    notes: 'Competência Novembro/2026',
+    createdAt: '2026-11-01T08:00:00.000Z'
+  },
+  {
+    id: '4',
+    description: 'Frete de Transferência da Fábrica para o Centro de Distribuição',
+    supplier: 'Transportadora Rápido Express Brasil',
+    amount: 290.00,
+    dueDate: '2026-11-14',
+    category: 'Logística & Frete Fornecedor',
+    paymentMethod: 'Pix',
+    status: 'pending',
+    notes: 'Conhecimento de frete CT-e 48921',
+    createdAt: '2026-11-04T15:00:00.000Z'
+  }
+];
+
+// Hybrid Reactive Database synchronized directly with PostgreSQL Cloud SQL
 class StoreDatabase {
   private listeners: Set<() => void> = new Set();
 
@@ -1323,6 +1504,277 @@ class StoreDatabase {
 
   public clearCart(): void {
     this.save(STORAGE_KEYS.CART, []);
+  }
+
+  // --- Real Cloud SQL Database Synchronization ---
+  public async syncWithDatabase(): Promise<boolean> {
+    try {
+      const res = await fetch('/api/bootstrap');
+      if (!res.ok) return false;
+      const data = await res.json();
+
+      if (data.settings) {
+        this.save(STORAGE_KEYS.SETTINGS, {
+          ...data.settings,
+          storeName: data.settings.storeName || 'TupperVasilhas & Cia',
+          adminEmail: 'edilson9155@gmail.com'
+        });
+      }
+      if (data.users && data.users.length > 0) {
+        this.save(STORAGE_KEYS.USERS, data.users);
+      }
+      if (data.receivables && data.receivables.length > 0) {
+        this.save(STORAGE_KEYS.RECEIVABLES, data.receivables);
+      }
+      if (data.payables && data.payables.length > 0) {
+        this.save(STORAGE_KEYS.PAYABLES, data.payables);
+      }
+      return true;
+    } catch (err) {
+      console.warn('Sync with database fallback to local cache:', err);
+      return false;
+    }
+  }
+
+  // --- Users & Privileges Management (Cloud SQL) ---
+  public getUsers(): AdminUser[] {
+    return this.load<AdminUser[]>(STORAGE_KEYS.USERS, INITIAL_USERS);
+  }
+
+  public async authenticateUser(email: string, password: string): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, user: data.user };
+      }
+    } catch (e) {
+      // offline fallback
+    }
+
+    // Local fallback check
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = password.trim();
+
+    if (cleanEmail === 'edilson9155@gmail.com' && (cleanPass === '91550748' || cleanPass === 'admin')) {
+      return {
+        success: true,
+        user: INITIAL_USERS[0]
+      };
+    }
+
+    const found = this.getUsers().find(
+      (u) => u.email.toLowerCase() === cleanEmail && u.password === cleanPass && u.isActive
+    );
+
+    if (found) {
+      return { success: true, user: found };
+    }
+
+    return { success: false, error: 'E-mail ou senha inválidos' };
+  }
+
+  public async saveUser(user: Partial<AdminUser>): Promise<AdminUser> {
+    let list = this.getUsers();
+    let savedUser: AdminUser;
+
+    if (user.id) {
+      const index = list.findIndex((u) => u.id === user.id);
+      if (index >= 0) {
+        savedUser = { ...list[index], ...user } as AdminUser;
+        list[index] = savedUser;
+      } else {
+        savedUser = user as AdminUser;
+        list.push(savedUser);
+      }
+      // Async update backend Cloud SQL
+      fetch(`/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(savedUser)
+      }).catch(console.warn);
+    } else {
+      const newId = String(Date.now());
+      savedUser = {
+        id: newId,
+        name: user.name || '',
+        email: user.email || '',
+        password: user.password || '123456',
+        role: user.role || 'operator',
+        roleLabel: user.roleLabel || 'Operador',
+        privileges: user.privileges || {
+          dashboard: true,
+          productsAndStock: true,
+          orders: true,
+          financial: false,
+          couponsAndBanners: false,
+          usersAndSettings: false
+        },
+        isActive: user.isActive !== undefined ? user.isActive : true,
+        createdAt: new Date().toISOString()
+      };
+      list.push(savedUser);
+      // Async insert backend Cloud SQL
+      fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(savedUser)
+      }).catch(console.warn);
+    }
+
+    this.save(STORAGE_KEYS.USERS, list);
+    return savedUser;
+  }
+
+  public async deleteUser(id: string): Promise<boolean> {
+    const list = this.getUsers();
+    const target = list.find((u) => u.id === id);
+    if (target && target.email === 'edilson9155@gmail.com') {
+      return false; // protect super admin
+    }
+
+    const filtered = list.filter((u) => u.id !== id);
+    this.save(STORAGE_KEYS.USERS, filtered);
+
+    fetch(`/api/users/${id}`, { method: 'DELETE' }).catch(console.warn);
+    return true;
+  }
+
+  // --- Contas a Receber (Cloud SQL) ---
+  public getReceivables(): AccountReceivable[] {
+    return this.load<AccountReceivable[]>(STORAGE_KEYS.RECEIVABLES, INITIAL_RECEIVABLES);
+  }
+
+  public async saveReceivable(item: Partial<AccountReceivable>): Promise<AccountReceivable> {
+    let list = this.getReceivables();
+    let saved: AccountReceivable;
+
+    if (item.id) {
+      const index = list.findIndex((r) => r.id === item.id);
+      if (index >= 0) {
+        saved = { ...list[index], ...item } as AccountReceivable;
+        list[index] = saved;
+      } else {
+        saved = item as AccountReceivable;
+        list.unshift(saved);
+      }
+    } else {
+      const newId = String(Date.now());
+      saved = {
+        id: newId,
+        description: item.description || 'Venda',
+        customerName: item.customerName || 'Cliente',
+        customerPhone: item.customerPhone,
+        orderCode: item.orderCode,
+        amount: Number(item.amount) || 0,
+        dueDate: item.dueDate || new Date().toISOString().split('T')[0],
+        paymentMethod: item.paymentMethod || 'Pix',
+        status: item.status || 'pending',
+        category: item.category || 'Venda da Loja',
+        notes: item.notes,
+        createdAt: new Date().toISOString()
+      };
+      list.unshift(saved);
+
+      fetch('/api/financial/receivables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saved)
+      }).catch(console.warn);
+    }
+
+    this.save(STORAGE_KEYS.RECEIVABLES, list);
+    return saved;
+  }
+
+  public async markReceivableAsReceived(id: string): Promise<boolean> {
+    const list = this.getReceivables();
+    const item = list.find((r) => r.id === id);
+    if (!item) return false;
+
+    item.status = 'received';
+    item.receivedDate = new Date().toISOString();
+    this.save(STORAGE_KEYS.RECEIVABLES, list);
+
+    fetch(`/api/financial/receivables/${id}/receive`, { method: 'PATCH' }).catch(console.warn);
+    return true;
+  }
+
+  public async deleteReceivable(id: string): Promise<boolean> {
+    const list = this.getReceivables().filter((r) => r.id !== id);
+    this.save(STORAGE_KEYS.RECEIVABLES, list);
+    fetch(`/api/financial/receivables/${id}`, { method: 'DELETE' }).catch(console.warn);
+    return true;
+  }
+
+  // --- Contas a Pagar (Cloud SQL) ---
+  public getPayables(): AccountPayable[] {
+    return this.load<AccountPayable[]>(STORAGE_KEYS.PAYABLES, INITIAL_PAYABLES);
+  }
+
+  public async savePayable(item: Partial<AccountPayable>): Promise<AccountPayable> {
+    let list = this.getPayables();
+    let saved: AccountPayable;
+
+    if (item.id) {
+      const index = list.findIndex((p) => p.id === item.id);
+      if (index >= 0) {
+        saved = { ...list[index], ...item } as AccountPayable;
+        list[index] = saved;
+      } else {
+        saved = item as AccountPayable;
+        list.unshift(saved);
+      }
+    } else {
+      const newId = String(Date.now());
+      saved = {
+        id: newId,
+        description: item.description || 'Despesa Fornecedor',
+        supplier: item.supplier || 'Fornecedor Tupperware / Vasilhas',
+        amount: Number(item.amount) || 0,
+        dueDate: item.dueDate || new Date().toISOString().split('T')[0],
+        category: item.category || 'Fornecedores de Vasilhas',
+        paymentMethod: item.paymentMethod || 'Boleto',
+        status: item.status || 'pending',
+        barcodeOrPix: item.barcodeOrPix,
+        notes: item.notes,
+        createdAt: new Date().toISOString()
+      };
+      list.unshift(saved);
+
+      fetch('/api/financial/payables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(saved)
+      }).catch(console.warn);
+    }
+
+    this.save(STORAGE_KEYS.PAYABLES, list);
+    return saved;
+  }
+
+  public async markPayableAsPaid(id: string): Promise<boolean> {
+    const list = this.getPayables();
+    const item = list.find((p) => p.id === id);
+    if (!item) return false;
+
+    item.status = 'paid';
+    item.paidDate = new Date().toISOString();
+    this.save(STORAGE_KEYS.PAYABLES, list);
+
+    fetch(`/api/financial/payables/${id}/pay`, { method: 'PATCH' }).catch(console.warn);
+    return true;
+  }
+
+  public async deletePayable(id: string): Promise<boolean> {
+    const list = this.getPayables().filter((p) => p.id !== id);
+    this.save(STORAGE_KEYS.PAYABLES, list);
+    fetch(`/api/financial/payables/${id}`, { method: 'DELETE' }).catch(console.warn);
+    return true;
   }
 }
 

@@ -1,20 +1,138 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <rect width="512" height="512" rx="128" fill="#166534" />
-  <!-- Minimalist container silhouette with bamboo lid -->
-  <g transform="translate(106, 96)">
-    <!-- Bamboo Lid -->
-    <rect x="25" y="40" width="250" height="36" rx="12" fill="#D97706" />
-    <rect x="35" y="48" width="230" height="6" rx="3" fill="#B45309" opacity="0.4" />
-    <rect x="35" y="60" width="180" height="6" rx="3" fill="#B45309" opacity="0.3" />
-    <!-- Silicone Seal Line -->
-    <rect x="50" y="76" width="200" height="12" rx="4" fill="#FDE68A" />
-    <!-- Glass Jar Body -->
-    <rect x="40" y="88" width="220" height="230" rx="28" fill="#FFFFFF" fill-opacity="0.92" stroke="#E2E8F0" stroke-width="6" />
-    <!-- Glass reflections -->
-    <path d="M 65 115 L 65 290" stroke="#F1F5F9" stroke-width="12" stroke-linecap="round" />
-    <path d="M 85 130 L 85 240" stroke="#F8FAFC" stroke-width="6" stroke-linecap="round" opacity="0.7" />
-    <!-- Fresh Leaf symbol inside jar indicating non-toxic / BPA Free / organic food keeping -->
-    <path d="M 150 180 C 120 180 105 210 120 240 C 135 270 180 260 180 230 C 180 190 160 180 150 180 Z" fill="#22C55E" />
-    <path d="M 120 240 C 145 230 165 205 180 185" stroke="#15803D" stroke-width="4" stroke-linecap="round" />
+  <defs>
+    <!-- Background Gradient: Iconic Tupperware Berry Rose -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E11D48" />
+      <stop offset="45%" stop-color="#BE185D" />
+      <stop offset="100%" stop-color="#881337" />
+    </linearGradient>
+
+    <!-- Translucent Lid Glass / Silicone Gradient -->
+    <linearGradient id="lidGrad" x1="100" y1="120" x2="412" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#FCE7F3" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Fresh Mint Accent Gradient -->
+    <linearGradient id="mintGrad" x1="180" y1="200" x2="330" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2DD4BF" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+
+    <!-- Glow Filter for Hermetic Seal Ring -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect width="512" height="512" rx="120" fill="url(#bgGrad)" />
+
+  <!-- Subtle Ambient Glow Ring -->
+  <circle cx="256" cy="256" r="210" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2" />
+  <circle cx="256" cy="256" r="185" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1" stroke-dasharray="6 6" />
+
+  <!-- Tupperware Inspired Container Silhouette Group -->
+  <g transform="translate(0, 8)">
+    <!-- Container Body (Modern Curved Bowl / Canister) -->
+    <path
+      d="M 120 185
+         L 142 350
+         C 148 395 185 418 256 418
+         C 327 418 364 395 370 350
+         L 392 185
+         Z"
+      fill="#FFFFFF"
+      fill-opacity="0.95"
+      stroke="#FBCFE8"
+      stroke-width="3"
+    />
+
+    <!-- Internal Fresh Food Organizers / Level Fill (Dual tone) -->
+    <path
+      d="M 148 340
+         C 160 375 195 396 256 396
+         C 317 396 352 375 364 340
+         L 372 280
+         C 320 292 192 292 140 280
+         Z"
+      fill="url(#mintGrad)"
+      fill-opacity="0.9"
+    />
+
+    <!-- Frosted Body Highlights -->
+    <path
+      d="M 152 205 L 168 335"
+      stroke="#FFFFFF"
+      stroke-width="8"
+      stroke-linecap="round"
+      opacity="0.6"
+    />
+    <path
+      d="M 174 215 L 184 315"
+      stroke="#FFFFFF"
+      stroke-width="4"
+      stroke-linecap="round"
+      opacity="0.4"
+    />
+
+    <!-- Signature Hermetic Seal Ring (Silicone Gasket) -->
+    <rect
+      x="100"
+      y="166"
+      width="312"
+      height="22"
+      rx="11"
+      fill="#0F766E"
+      opacity="0.9"
+    />
+
+    <!-- Signature Tupperware Easy-Open Tab & Radial Lid -->
+    <rect
+      x="88"
+      y="136"
+      width="336"
+      height="34"
+      rx="17"
+      fill="url(#lidGrad)"
+      stroke="#F43F5E"
+      stroke-width="2"
+      filter="url(#softGlow)"
+    />
+
+    <!-- Lid Top Sunburst / Concentric Groove (The unmistakable Tupperware seal trademark) -->
+    <ellipse cx="256" cy="153" rx="100" ry="8" stroke="#E11D48" stroke-width="2.5" stroke-opacity="0.5" fill="none" />
+    <ellipse cx="256" cy="153" rx="55" ry="4.5" stroke="#E11D48" stroke-width="2" stroke-opacity="0.6" fill="none" />
+
+    <!-- Lid Pull Tab Indicator (Right Side) -->
+    <path
+      d="M 405 153 C 435 153 438 162 420 172 Z"
+      fill="#F43F5E"
+      opacity="0.9"
+    />
+
+    <!-- Central Emblem: Stylized Hermetic Freshness Star / Monogram -->
+    <circle cx="256" cy="275" r="38" fill="#FFFFFF" opacity="0.96" filter="url(#softGlow)" />
+    <!-- Modern Geometric Tulip / Leaf Monogram -->
+    <path
+      d="M 256 250
+         C 244 262 242 276 247 288
+         C 252 298 260 298 265 288
+         C 270 276 268 262 256 250 Z"
+      fill="#BE185D"
+    />
+    <path
+      d="M 245 272
+         C 235 272 232 284 242 291
+         C 250 292 253 283 245 272 Z"
+      fill="#0D9488"
+    />
+    <path
+      d="M 267 272
+         C 277 272 280 284 270 291
+         C 262 292 259 283 267 272 Z"
+      fill="#0D9488"
+    />
   </g>
 </svg>
