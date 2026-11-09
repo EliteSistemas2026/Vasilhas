@@ -1,0 +1,6 @@
+{
+  "name": "Vasilha & Cia - Utilidades e Potes",
+  "description": "Loja virtual moderna e completa para venda de vasilhas, potes herméticos, organizadores e utilidades domésticas com checkout simplificado e painel administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

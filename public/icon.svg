@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="128" fill="#166534" />
+  <!-- Minimalist container silhouette with bamboo lid -->
+  <g transform="translate(106, 96)">
+    <!-- Bamboo Lid -->
+    <rect x="25" y="40" width="250" height="36" rx="12" fill="#D97706" />
+    <rect x="35" y="48" width="230" height="6" rx="3" fill="#B45309" opacity="0.4" />
+    <rect x="35" y="60" width="180" height="6" rx="3" fill="#B45309" opacity="0.3" />
+    <!-- Silicone Seal Line -->
+    <rect x="50" y="76" width="200" height="12" rx="4" fill="#FDE68A" />
+    <!-- Glass Jar Body -->
+    <rect x="40" y="88" width="220" height="230" rx="28" fill="#FFFFFF" fill-opacity="0.92" stroke="#E2E8F0" stroke-width="6" />
+    <!-- Glass reflections -->
+    <path d="M 65 115 L 65 290" stroke="#F1F5F9" stroke-width="12" stroke-linecap="round" />
+    <path d="M 85 130 L 85 240" stroke="#F8FAFC" stroke-width="6" stroke-linecap="round" opacity="0.7" />
+    <!-- Fresh Leaf symbol inside jar indicating non-toxic / BPA Free / organic food keeping -->
+    <path d="M 150 180 C 120 180 105 210 120 240 C 135 270 180 260 180 230 C 180 190 160 180 150 180 Z" fill="#22C55E" />
+    <path d="M 120 240 C 145 230 165 205 180 185" stroke="#15803D" stroke-width="4" stroke-linecap="round" />
+  </g>
+</svg>
